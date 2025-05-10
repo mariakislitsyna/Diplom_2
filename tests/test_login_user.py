@@ -8,14 +8,20 @@ from data.user_data import User
 @allure.suite('Авторизация пользователя')
 class Testlogin:
 
-    @allure.description('При авторизация под пользователем, который есть в системе, происходит успешная авторизация')
-    @allure.title('Авторизация под пользователем, который есть в системе')
+    @allure.description('При авторизации под существующим пользователем, происходит успешный вход')
+    @allure.title('Авторизация под существующим пользователем')
     def test_login_user(self):
-        response = requests.post(f'{Urls.MAIN_URL}{Handlers.LOGIN}', data=User.data_correct)
-        assert response.status_code == 200 and response.json().get('success') == True
+        with allure.step('Отправка POST-запрос с правильными данными для входа'):
+            response = requests.post(f'{Urls.MAIN_URL}{Handlers.LOGIN}', data=User.data_correct)
+        with allure.step('Проверка успешного входа'):
+            assert response.status_code == 200
+            assert response.json().get('success') == True
 
-    @allure.description('При авторизация под пользователем с некорректным логином/паролем, срабатывает allert')
-    @allure.title('Авторизация с некорректным логином/паролем')
+    @allure.description('При вводе некорректных логина или пароля срабатывает ошибка')
+    @allure.title('Авторизация с неправильными данными')
     def test_login_user_error(self):
-        response = requests.post(f'{Urls.MAIN_URL}{Handlers.LOGIN}', data=User.data_negative)
-        assert response.status_code == 401 and response.json().get('success') == False
+        with allure.step('Отправка POST-запрос с неправильными данными'):
+            response = requests.post(f'{Urls.MAIN_URL}{Handlers.LOGIN}', data=User.data_negative)
+        with allure.step('Проверка сообщения об ошибке'):
+            assert response.status_code == 401
+            assert response.json().get('success') == False
